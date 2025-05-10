@@ -14,3 +14,10 @@ variable "availability_zone" {
   }
 }
 
+variable "public_subnet_cidr_block" {
+  default = {
+    "az-a" = "10.0.100.0/24"
+    "az-b" = "10.0.200.0/24"
+    "az-c" = "10.0.254.0/24"
+  }
+}
