@@ -7,3 +7,7 @@ resource "aws_subnet" "public-subnet" {
     "Name" = "subnet-${var.az}"
   }
 }
+
+output "id" {
+  value = aws_subnet.public-subnet.id
+}
