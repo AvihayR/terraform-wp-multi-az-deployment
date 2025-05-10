@@ -16,3 +16,8 @@ module "public-subnet-b" {
   cidr_block = lookup(var.public_subnet_cidr_block, "az-b")
   az         = lookup(var.availability_zone, "az-b")
 }
+
+module "igw" {
+  source = "./modules/igw"
+  vpc_id = module.vpc.vpc_id
+}
