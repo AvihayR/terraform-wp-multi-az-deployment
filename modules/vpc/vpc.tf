@@ -4,3 +4,7 @@ resource "aws_vpc" "wp-multi-az-vpc" {
     Name = "wp-multi-az-vpc"
   }
 }
+
+output "vpc_id" {
+  value = aws_vpc.wp-multi-az-vpc.id
+}
