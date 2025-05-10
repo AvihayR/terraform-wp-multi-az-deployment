@@ -9,7 +9,6 @@ terraform {
 
 
 provider "aws" {
-  region = "eu-central-1"
-  # region = lookup(var.region, terraform.workspace) 
+  region = var.region
 }
 
