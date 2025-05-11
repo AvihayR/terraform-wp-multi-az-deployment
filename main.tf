@@ -22,10 +22,37 @@ module "igw" {
   vpc_id = module.vpc.vpc_id
 }
 
+
 module "public-route-table" {
   source            = "./modules/public-route-table"
   local_cidr        = var.vpc_cidr
   vpc_id            = module.vpc.vpc_id
   gateway_id        = module.igw.igw-id
   public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
+}
+
+
+module "rds" {
+  source           = "./modules/rds"
+  rds_subnet_group = [module.public-subnet-a.id, module.public-subnet-b.id]
+  username         = var.db_username
+  password         = var.db_password
+  db_name          = var.db_name
+}
+
+
+# -------------------------------
+# Outputs
+# -------------------------------
+
+output "public_subnet_ids" {
+  value = [module.public-subnet-a.id, module.public-subnet-b.id]
+}
+
+output "igw" {
+  value = module.igw
+}
+
+output "rds_arn" {
+  value = module.rds
 }
