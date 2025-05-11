@@ -4,7 +4,8 @@ resource "aws_subnet" "public-subnet" {
   availability_zone = var.az
 
   tags = {
-    "Name" = "subnet-${var.az}"
+    Name        = "public-subnet-${var.az}"
+    subnet_type = "public"
   }
 }
 

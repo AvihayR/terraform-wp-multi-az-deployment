@@ -21,3 +21,16 @@ variable "public_subnet_cidr_block" {
     "az-c" = "10.0.254.0/24"
   }
 }
+
+variable "db_username" {
+  type = string
+}
+
+variable "db_password" {
+  type = string
+}
+
+variable "db_name" {
+  type    = string
+  default = "wpdb"
+}
