@@ -34,3 +34,8 @@ variable "db_name" {
   type    = string
   default = "wpdb"
 }
+
+variable "instance_type" {
+  type    = string
+  default = "t4g.micro"
+}
