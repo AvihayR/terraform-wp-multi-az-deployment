@@ -39,3 +39,8 @@ variable "instance_type" {
   type    = string
   default = "t4g.micro"
 }
+
+variable "bastion_sg_allowed_cidr" {
+  type    = string
+  default = "0.0.0.0/0"
+}

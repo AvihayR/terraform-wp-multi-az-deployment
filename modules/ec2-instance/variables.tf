@@ -7,5 +7,5 @@ variable "subnet_id" {
 }
 
 variable "sg_list" {
-  type = set[string]
+  type = set(string)
 }

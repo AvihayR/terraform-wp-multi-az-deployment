@@ -8,3 +8,7 @@ resource "aws_vpc" "wp-multi-az-vpc" {
 output "vpc_id" {
   value = aws_vpc.wp-multi-az-vpc.id
 }
+
+output "vpc_cidr_block" {
+  value = aws_vpc.wp-multi-az-vpc.cidr_block
+}

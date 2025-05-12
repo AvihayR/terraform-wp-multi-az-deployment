@@ -40,10 +40,17 @@ module "rds" {
   db_name          = var.db_name
 }
 
+module "bastion_sg" {
+  source              = "./modules/bastion-sg"
+  cidr_block_to_allow = var.bastion_sg_allowed_cidr
+  vpc_id              = module.vpc.vpc_id
+}
+
 module "wp_ec2_instance" {
   source        = "./modules/ec2-instance"
   instance_type = var.instance_type
   subnet_id     = module.public-subnet-a.id
+  sg_list       = [module.bastion_sg.id]
 }
 
 # -------------------------------
