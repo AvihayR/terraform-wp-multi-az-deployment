@@ -16,7 +16,7 @@ resource "aws_instance" "wp_ec2_instance" {
   instance_type   = var.instance_type
   subnet_id       = var.subnet_id
   security_groups = var.sg_list
-
+  key_name        = var.bastion_key_name
   # --- temporary ---- #
   associate_public_ip_address = true
 

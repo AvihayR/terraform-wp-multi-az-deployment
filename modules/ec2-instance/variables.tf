@@ -9,3 +9,7 @@ variable "subnet_id" {
 variable "sg_list" {
   type = set(string)
 }
+
+variable "bastion_key_name" {
+  type = string
+}
