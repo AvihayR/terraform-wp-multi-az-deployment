@@ -44,3 +44,11 @@ variable "bastion_sg_allowed_cidr" {
   type    = string
   default = "0.0.0.0/0"
 }
+
+
+variable "bastion_key_pairs" {
+  type = list(object({
+    name = string
+    key  = string
+  }))
+}

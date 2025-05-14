@@ -53,6 +53,11 @@ module "wp_ec2_instance" {
   sg_list       = [module.bastion_sg.id]
 }
 
+module "bastion_key_pairs" {
+  source            = "./modules/bastion_keypairs"
+  bastion_key_pairs = var.bastion_key_pairs
+}
+
 # -------------------------------
 # Outputs
 # -------------------------------
@@ -71,4 +76,8 @@ output "rds_arn" {
 
 output "wp_ec2_instance" {
   value = module.wp_ec2_instance
+}
+
+output "keypair" {
+  value = module.bastion_key_pairs
 }
