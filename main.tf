@@ -57,9 +57,8 @@ module "wp_ec2_instance" {
   subnet_id        = module.public-subnet-a.id
   sg_list          = [module.bastion_sg.id]
   bastion_key_name = module.bastion_key_pair.key_pair.key_name
-  user_data        = <<-EOT
-    ${file("./scripts/install_wp.sh")}
-  EOT
+  user_data        = file("./scripts/install_wp.sh")
+
   #   # 👇 --- temporary until separation of instances --- #
   associate_public_ip_address = true
 }
