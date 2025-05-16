@@ -15,3 +15,7 @@ variable "db_name" {
 variable "rds_subnet_group" {
   type = set(string)
 }
+
+variable "sg_id_list" {
+  type = set(string)
+}

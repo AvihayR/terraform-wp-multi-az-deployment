@@ -31,6 +31,11 @@ module "public-route-table" {
   public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
 }
 
+module "rds_sg" {
+  source         = "./modules/rds_sg"
+  vpc_id         = module.vpc.vpc_id
+  local_vpc_cidr = var.vpc_cidr
+}
 
 module "rds" {
   source           = "./modules/rds"
@@ -38,6 +43,7 @@ module "rds" {
   username         = var.db_username
   password         = var.db_password
   db_name          = var.db_name
+  sg_id_list       = [module.rds_sg.id, ]
 }
 
 module "bastion_sg" {
