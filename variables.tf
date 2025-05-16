@@ -46,9 +46,7 @@ variable "bastion_sg_allowed_cidr" {
 }
 
 
-variable "bastion_key_pairs" {
-  type = list(object({
-    name = string
-    key  = string
-  }))
+variable "bastion_key_name" {
+  type    = string
+  default = "bastion_key"
 }
