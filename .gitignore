@@ -1,3 +1,6 @@
+# Local generated .pem keys
+*.pem
+
 # Local .terraform directories
 .terraform/
 

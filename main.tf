@@ -46,9 +46,9 @@ module "bastion_sg" {
   vpc_id              = module.vpc.vpc_id
 }
 
-module "bastion_key_pairs" {
-  source            = "./modules/bastion_keypairs"
-  bastion_key_pairs = var.bastion_key_pairs
+module "bastion_key_pair" {
+  source   = "./modules/ec2_keypair"
+  key_name = var.bastion_key_name
 }
 
 module "wp_ec2_instance" {
@@ -56,7 +56,7 @@ module "wp_ec2_instance" {
   instance_type    = var.instance_type
   subnet_id        = module.public-subnet-a.id
   sg_list          = [module.bastion_sg.id]
-  bastion_key_name = module.bastion_key_pairs.pairs[0].key_name
+  bastion_key_name = module.bastion_key_pair.key_pair.key_name
 }
 
 
@@ -81,5 +81,5 @@ output "wp_ec2_instance" {
 }
 
 output "keypair" {
-  value = module.bastion_key_pairs
+  value = module.bastion_key_pair
 }
