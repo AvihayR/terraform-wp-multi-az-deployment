@@ -18,6 +18,6 @@ resource "aws_db_subnet_group" "rds-sb-gr" {
   subnet_ids = var.rds_subnet_group
 }
 
-output "arn" {
-  value = aws_db_instance.wp-rds-db.arn
+output "endpoint" {
+  value = aws_db_instance.wp-rds-db.address
 }
