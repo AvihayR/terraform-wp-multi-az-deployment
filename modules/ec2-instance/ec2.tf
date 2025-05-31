@@ -25,11 +25,6 @@ resource "aws_instance" "wp_ec2_instance" {
   }
 }
 
-
-output "public_ip_addr" {
-  value = aws_instance.wp_ec2_instance.public_ip
-}
-
 output "public_dns" {
   value = aws_instance.wp_ec2_instance.public_dns
 }

@@ -73,12 +73,12 @@ module "bastion_key_pair" {
 }
 
 module "wp_ec2_instance" {
-  source           = "./modules/ec2-instance"
-  instance_type    = var.instance_type
-  subnet_id        = module.public-subnet-a.id
-  sg_list          = [module.bastion_sg.id]
-  bastion_key_name = module.bastion_key_pair.key_pair.key_name
-  user_data        = <<-EOT
+  source                      = "./modules/ec2-instance"
+  instance_type               = var.instance_type
+  subnet_id                   = module.public-subnet-a.id
+  sg_list                     = [module.bastion_sg.id]
+  bastion_key_name            = module.bastion_key_pair.key_pair.key_name
+  user_data                   = <<-EOT
     #!/bin/bash
     sudo yum update -y
     sudo amazon-linux-extras install -y mariadb10.5
@@ -131,9 +131,7 @@ module "wp_ec2_instance" {
     #   define( 'NONCE_SALT',       '(V/<C!Zusm5^zFsj-@V R)A+3.7l%&h~6.!<zM|~N9SiecsaR7&X:dH|h VLhZ2A' );
     # EOL
   EOT
-
-  #   # 👇 --- temporary until separation of instances --- #
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 }
 
 
