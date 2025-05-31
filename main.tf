@@ -17,6 +17,21 @@ module "public-subnet-b" {
   az         = lookup(var.availability_zone, "az-b")
 }
 
+
+module "private_subnet_a" {
+  source     = "./modules/private_subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = lookup(var.private_subnet_cidr_block, "az-a")
+  az         = lookup(var.availability_zone, "az-a")
+}
+
+module "private_subnet_b" {
+  source     = "./modules/private_subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = lookup(var.private_subnet_cidr_block, "az-b")
+  az         = lookup(var.availability_zone, "az-b")
+}
+
 module "igw" {
   source = "./modules/igw"
   vpc_id = module.vpc.vpc_id
@@ -25,8 +40,8 @@ module "igw" {
 
 module "public-route-table" {
   source            = "./modules/public-route-table"
-  local_cidr        = var.vpc_cidr
   vpc_id            = module.vpc.vpc_id
+  local_cidr        = var.vpc_cidr
   gateway_id        = module.igw.igw-id
   public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
 }
