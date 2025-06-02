@@ -37,6 +37,12 @@ module "igw" {
   vpc_id = module.vpc.vpc_id
 }
 
+module "nat_gw" {
+  source     = "./modules/nat-gw"
+  subnet_id  = module.public-subnet-a
+  depends_on = [module.igw]
+}
+
 module "public-route-table" {
   source            = "./modules/public-route-table"
   vpc_id            = module.vpc.vpc_id
@@ -155,6 +161,7 @@ module "wp_instance" {
 # -------------------------------
 # Outputs
 # -------------------------------
+
 
 output "public_subnet_ids" {
   value = [module.public-subnet-a.id, module.public-subnet-b.id]
