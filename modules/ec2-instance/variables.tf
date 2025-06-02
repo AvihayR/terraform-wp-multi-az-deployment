@@ -22,3 +22,7 @@ variable "associate_public_ip_address" {
 variable "user_data" {
   type = string
 }
+
+variable "ec2_name" {
+  type = string
+}

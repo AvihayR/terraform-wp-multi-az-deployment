@@ -37,7 +37,6 @@ module "igw" {
   vpc_id = module.vpc.vpc_id
 }
 
-
 module "public-route-table" {
   source            = "./modules/public-route-table"
   vpc_id            = module.vpc.vpc_id
@@ -63,8 +62,14 @@ module "rds" {
 
 module "bastion_sg" {
   source              = "./modules/bastion-sg"
-  cidr_block_to_allow = var.bastion_sg_allowed_cidr
   vpc_id              = module.vpc.vpc_id
+  cidr_block_to_allow = var.bastion_sg_allowed_cidr
+}
+
+module "wp_sg" {
+  source              = "./modules/wp-instance-sg"
+  vpc_id              = module.vpc.vpc_id
+  cidr_block_to_allow = module.vpc.vpc_cidr_block
 }
 
 module "bastion_key_pair" {
@@ -72,12 +77,24 @@ module "bastion_key_pair" {
   key_name = var.bastion_key_name
 }
 
-module "wp_ec2_instance" {
+module "bastion_instance" {
   source                      = "./modules/ec2-instance"
   instance_type               = var.instance_type
   subnet_id                   = module.public-subnet-a.id
   sg_list                     = [module.bastion_sg.id]
   bastion_key_name            = module.bastion_key_pair.key_pair.key_name
+  ec2_name                    = "bastion-host"
+  user_data                   = null
+  associate_public_ip_address = true
+}
+
+module "wp_instance" {
+  source                      = "./modules/ec2-instance"
+  instance_type               = var.instance_type
+  subnet_id                   = module.private_subnet_a.id
+  sg_list                     = [module.wp_sg.id]
+  bastion_key_name            = module.bastion_key_pair.key_pair.key_name
+  ec2_name                    = "wp-instance"
   user_data                   = <<-EOT
     #!/bin/bash
     sudo yum update -y
@@ -151,10 +168,14 @@ output "rds_details" {
   value = module.rds
 }
 
-output "wp_ec2_instance" {
-  value = module.wp_ec2_instance
-}
-
 output "keypair" {
   value = module.bastion_key_pair
+}
+
+output "wp_instance" {
+  value = module.wp_instance
+}
+
+output "bastion_ec2_instance" {
+  value = module.bastion_instance
 }

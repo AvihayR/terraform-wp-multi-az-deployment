@@ -5,7 +5,7 @@ resource "aws_subnet" "private_subnet" {
 
   tags = {
     Name        = "private-subnet-${var.az}"
-    subnet_type = "public"
+    subnet_type = "private"
   }
 }
 
