@@ -39,16 +39,24 @@ module "igw" {
 
 module "nat_gw" {
   source     = "./modules/nat-gw"
-  subnet_id  = module.public-subnet-a
+  subnet_id  = module.public-subnet-a.id
   depends_on = [module.igw]
 }
 
-module "public-route-table" {
+module "public_route_table" {
   source            = "./modules/public-route-table"
   vpc_id            = module.vpc.vpc_id
   local_cidr        = var.vpc_cidr
   gateway_id        = module.igw.igw-id
   public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
+}
+
+module "private_route_table" {
+  source             = "./modules/private-route-table"
+  vpc_id             = module.vpc.vpc_id
+  local_cidr         = var.vpc_cidr
+  ngw_id             = module.nat_gw.id
+  private_subnet_ids = [module.private_subnet_a.id, module.private_subnet_b.id]
 }
 
 module "rds_sg" {

@@ -12,3 +12,7 @@ resource "aws_nat_gateway" "nat_gw" {
     Name = "NAT Gateway for private-subnet's outbound traffic"
   }
 }
+
+output "id" {
+  value = aws_nat_gateway.nat_gw.id
+}
