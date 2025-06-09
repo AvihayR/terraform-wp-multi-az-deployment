@@ -1,5 +1,5 @@
 resource "aws_db_instance" "wp-rds-db" {
-  # multi_az             = true
+  multi_az               = true
   db_subnet_group_name   = aws_db_subnet_group.rds-sb-gr.name
   allocated_storage      = 10
   db_name                = var.db_name

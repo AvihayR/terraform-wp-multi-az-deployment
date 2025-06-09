@@ -35,7 +35,7 @@ output "public_dns" {
 }
 
 
-output "private_ipv4" {
+output "private_ip" {
   value = aws_instance.ec2_instance.private_ip
 }
 

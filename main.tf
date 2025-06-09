@@ -37,9 +37,15 @@ module "igw" {
   vpc_id = module.vpc.vpc_id
 }
 
-module "nat_gw" {
+module "nat_gw_a" {
   source     = "./modules/nat-gw"
   subnet_id  = module.public-subnet-a.id
+  depends_on = [module.igw]
+}
+
+module "nat_gw_b" {
+  source     = "./modules/nat-gw"
+  subnet_id  = module.public-subnet-b.id
   depends_on = [module.igw]
 }
 
@@ -51,12 +57,23 @@ module "public_route_table" {
   public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
 }
 
-module "private_route_table" {
-  source             = "./modules/private-route-table"
-  vpc_id             = module.vpc.vpc_id
-  local_cidr         = var.vpc_cidr
-  ngw_id             = module.nat_gw.id
-  private_subnet_ids = [module.private_subnet_a.id, module.private_subnet_b.id]
+module "private_route_tables" {
+  for_each = {
+    "subnet-a" = {
+      subnet_id = module.private_subnet_a.id
+      nat_id    = module.nat_gw_a.id
+    }
+    "subnet-b" = {
+      subnet_id = module.private_subnet_b.id
+      nat_id    = module.nat_gw_b.id
+    }
+  }
+
+  source            = "./modules/private-route-table"
+  vpc_id            = module.vpc.vpc_id
+  local_cidr        = var.vpc_cidr
+  private_subnet_id = each.value.subnet_id
+  ngw_id            = each.value.nat_id
 }
 
 module "rds_sg" {
@@ -102,13 +119,13 @@ module "bastion_instance" {
   associate_public_ip_address = true
 }
 
-module "wp_instance" {
+module "wp_instance_a" {
   source                      = "./modules/ec2-instance"
   instance_type               = var.instance_type
   subnet_id                   = module.private_subnet_a.id
   sg_list                     = [module.wp_sg.id]
   bastion_key_name            = module.bastion_key_pair.key_pair.key_name
-  ec2_name                    = "wp-instance"
+  ec2_name                    = "wp_instance_a"
   user_data                   = <<-EOT
     #!/bin/bash
     sudo yum update -y
@@ -164,7 +181,63 @@ module "wp_instance" {
   EOT
   associate_public_ip_address = false
 }
+module "wp_instance_b" {
+  source                      = "./modules/ec2-instance"
+  instance_type               = var.instance_type
+  subnet_id                   = module.private_subnet_a.id
+  sg_list                     = [module.wp_sg.id]
+  bastion_key_name            = module.bastion_key_pair.key_pair.key_name
+  ec2_name                    = "wp_instance_b"
+  user_data                   = <<-EOT
+    #!/bin/bash
+    sudo yum update -y
+    sudo amazon-linux-extras install -y mariadb10.5
+    sudo amazon-linux-extras install -y php8.2
+    sudo yum install -y httpd
+    sudo yum install -y git
 
+    sudo systemctl start httpd
+    sudo systemctl enable httpd
+
+    sudo usermod -a -G apache ec2-user
+    sudo chown -R ec2-user:apache /var/www
+    sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
+    find /var/www -type f -exec sudo chmod 0664 {} \;
+
+    wget https://wordpress.org/latest.tar.gz
+    tar -xzf latest.tar.gz
+    sudo mv wordpress/* /var/www/html/
+
+    DB_USER="${var.db_username}"
+    DB_PASS="${var.db_password}"
+    DB_HOST="${module.rds.endpoint}"
+
+    # Initialize Wordpress connection to DB
+    cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" < wp-blog-demo-app/wpdb.sql
+    sudo sed -i 's/'database_name_here'/'${var.db_name}'/g' /var/www/html/wp-config.php
+    sudo sed -i 's/'username_here'/'${var.db_username}'/g' /var/www/html/wp-config.php
+    sudo sed -i 's/'password_here'/'${var.db_password}'/g' /var/www/html/wp-config.php
+    sudo sed -i 's/'localhost'/'${module.rds.endpoint}'/g' /var/www/html/wp-config.php
+
+    # cat <<EOL >> /var/www/html/wp-config.php
+    #   define( 'AUTH_KEY',         '^skfI})#j$n}JaN7o#UH!ob(mLr$WVX6FTYw9J}mQ<:vI*v8p2$~hGg>>E-XGG?^' );
+    #   define( 'SECURE_AUTH_KEY',  '4&!Fa!1^B[R$i=sC5Vtkp#=xmkQSsDg W3GB&/1z}lj,/iP[q%:JG|*_,+.vwJ*;' );
+    #   define( 'LOGGED_IN_KEY',    ';gd_NORGtCQzx!EBgC9AeUsDt:#>480.e.L)=#v}HuGr^Z%u o4D=Be3BSm6$A/9' );
+    #   define( 'NONCE_KEY',        '+}gdvR-fHW5NH#B&HIQ%rns1>)d&jQ[5Ro2EfgCBZ7^6|A}<Xrf<u:S2*L1=@sOQ' );
+    #   define( 'AUTH_SALT',        '[c*abR6{tpSa/Y54nxx8&;(D~ElJ1L~7XP=0PVSH,SD)9Gt+i)  1X&4<rw-Thd!' );
+    #   define( 'SECURE_AUTH_SALT', 'C>ha@-0k(UPA2P|m$S}+#eO$md*d<K;x^+sS&9?R,6;t&B@Y=z{Y(S8EB8#q@TJ)' );
+    #   define( 'LOGGED_IN_SALT',   'UV$Q$(8aWcl;nXVM^*H)Qb2B%5)TSPiaBX*-C<B]=w>{y_eZ%:u0.yk/G{dEw8<~' );
+    #   define( 'NONCE_SALT',       '(V/<C!Zusm5^zFsj-@V R)A+3.7l%&h~6.!<zM|~N9SiecsaR7&X:dH|h VLhZ2A' );
+    # EOL
+  EOT
+  associate_public_ip_address = false
+}
+
+module "application_load_balancer" {
+  source        = "./modules/alb"
+  instance_list = [{ subnet_id = module.private_subnet_a.id, ip = module.wp_instance_a.private_ip }, { subnet_id = module.private_subnet_b.id, ip = module.wp_instance_b.private_ip }]
+}
 
 # -------------------------------
 # Outputs
@@ -187,10 +260,18 @@ output "keypair" {
   value = module.bastion_key_pair
 }
 
-output "wp_instance" {
-  value = module.wp_instance
+output "wp_instance_a" {
+  value = module.wp_instance_a
+}
+
+output "wp_instance_b" {
+  value = module.wp_instance_b
 }
 
 output "bastion_ec2_instance" {
   value = module.bastion_instance
+}
+
+output "alb_ip_adrr" {
+  value = module.application_load_balancer
 }
