@@ -234,12 +234,17 @@ module "wp_instance_b" {
   associate_public_ip_address = false
 }
 
+
+
 module "application_load_balancer" {
   source        = "./modules/alb"
-  instance_list = [{ subnet_id = module.private_subnet_a.id, ip = module.wp_instance_a.private_ip }, { subnet_id = module.private_subnet_b.id, ip = module.wp_instance_b.private_ip }]
+  instance_id_list = [module.wp_instance_a.id, module.wp_instance_b.id]
+  public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
+  vpc_id = module.vpc.vpc_id
 }
 
-# -------------------------------
+
+
 # Outputs
 # -------------------------------
 
@@ -272,6 +277,6 @@ output "bastion_ec2_instance" {
   value = module.bastion_instance
 }
 
-output "alb_ip_adrr" {
+output "alb_dns_name" {
   value = module.application_load_balancer
 }

@@ -1,3 +1,11 @@
-variable "instance_list" {
-  type = list(map(string))
+variable "vpc_id" {
+  type = string
+}
+
+variable "instance_id_list" {
+  type = list(string)
+}
+
+variable "public_subnet_ids" {
+  type = list(string)
 }
