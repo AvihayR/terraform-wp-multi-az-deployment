@@ -42,3 +42,7 @@ output "private_ip" {
 output "instance_name" {
   value = aws_instance.ec2_instance.tags.Name
 }
+
+output "id" {
+  value = aws_instance.ec2_instance.id
+}
