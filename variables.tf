@@ -23,6 +23,14 @@ variable "public_subnet_cidr_block" {
   }
 }
 
+variable "private_subnet_cidr_block" {
+  default = {
+    "az-a" = "10.0.10.0/24"
+    "az-b" = "10.0.20.0/24"
+    "az-c" = "10.0.30.0/24"
+  }
+}
+
 variable "db_username" {
   type = string
 }

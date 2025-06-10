@@ -11,7 +11,7 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "aws_instance" "wp_ec2_instance" {
+resource "aws_instance" "ec2_instance" {
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
@@ -21,15 +21,24 @@ resource "aws_instance" "wp_ec2_instance" {
   associate_public_ip_address = var.associate_public_ip_address
 
   tags = {
-    Name = "wp-instance"
+    Name = var.ec2_name
   }
 }
 
 
 output "public_ip_addr" {
-  value = aws_instance.wp_ec2_instance.public_ip
+  value = aws_instance.ec2_instance.public_ip
 }
 
 output "public_dns" {
-  value = aws_instance.wp_ec2_instance.public_dns
+  value = aws_instance.ec2_instance.public_dns
+}
+
+
+output "private_ip" {
+  value = aws_instance.ec2_instance.private_ip
+}
+
+output "instance_name" {
+  value = aws_instance.ec2_instance.tags.Name
 }
