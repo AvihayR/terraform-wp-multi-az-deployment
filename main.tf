@@ -137,14 +137,14 @@ module "wp_instance_a" {
     sudo systemctl start httpd
     sudo systemctl enable httpd
 
+    wget https://wordpress.org/latest.tar.gz
+    tar -xzf latest.tar.gz
+    sudo mv wordpress/* /var/www/html/
+
     sudo usermod -a -G apache ec2-user
     sudo chown -R ec2-user:apache /var/www
     sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
     find /var/www -type f -exec sudo chmod 0664 {} \;
-
-    wget https://wordpress.org/latest.tar.gz
-    tar -xzf latest.tar.gz
-    sudo mv wordpress/* /var/www/html/
 
     DB_USER="${var.db_username}"
     DB_PASS="${var.db_password}"
@@ -184,7 +184,7 @@ module "wp_instance_a" {
 module "wp_instance_b" {
   source                      = "./modules/ec2-instance"
   instance_type               = var.instance_type
-  subnet_id                   = module.private_subnet_a.id
+  subnet_id                   = module.private_subnet_b.id
   sg_list                     = [module.wp_sg.id]
   bastion_key_name            = module.bastion_key_pair.key_pair.key_name
   ec2_name                    = "wp_instance_b"
@@ -199,14 +199,14 @@ module "wp_instance_b" {
     sudo systemctl start httpd
     sudo systemctl enable httpd
 
+    wget https://wordpress.org/latest.tar.gz
+    tar -xzf latest.tar.gz
+    sudo mv wordpress/* /var/www/html/
+
     sudo usermod -a -G apache ec2-user
     sudo chown -R ec2-user:apache /var/www
     sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
     find /var/www -type f -exec sudo chmod 0664 {} \;
-
-    wget https://wordpress.org/latest.tar.gz
-    tar -xzf latest.tar.gz
-    sudo mv wordpress/* /var/www/html/
 
     DB_USER="${var.db_username}"
     DB_PASS="${var.db_password}"
