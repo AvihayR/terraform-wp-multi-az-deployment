@@ -119,6 +119,12 @@ module "bastion_instance" {
   associate_public_ip_address = true
 }
 
+module "application_load_balancer" {
+  source        = "./modules/alb"
+  public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
+  vpc_id = module.vpc.vpc_id
+}
+
 module "wp_instance_a" {
   source                      = "./modules/ec2-instance"
   instance_type               = var.instance_type
@@ -133,6 +139,7 @@ module "wp_instance_a" {
     sudo amazon-linux-extras install -y php8.2
     sudo yum install -y httpd
     sudo yum install -y git
+    # sudo yum install -y php-xml
 
     sudo systemctl start httpd
     sudo systemctl enable httpd
@@ -140,9 +147,12 @@ module "wp_instance_a" {
     wget https://wordpress.org/latest.tar.gz
     tar -xzf latest.tar.gz
     sudo mv wordpress/* /var/www/html/
+    git clone ${var.wp_blog_repo}
+    sudo mv wp-blog/wp-content/* /var/www/html/wp-content
 
     sudo usermod -a -G apache ec2-user
-    sudo chown -R ec2-user:apache /var/www
+    # sudo chown -R ec2-user:apache /var/www
+    sudo chown -R apache:apache /var/www
     sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
     find /var/www -type f -exec sudo chmod 0664 {} \;
 
@@ -168,16 +178,11 @@ module "wp_instance_a" {
     sudo sed -i 's/'password_here'/'${var.db_password}'/g' /var/www/html/wp-config.php
     sudo sed -i 's/'localhost'/'${module.rds.endpoint}'/g' /var/www/html/wp-config.php
 
-    # cat <<EOL >> /var/www/html/wp-config.php
-    #   define( 'AUTH_KEY',         '^skfI})#j$n}JaN7o#UH!ob(mLr$WVX6FTYw9J}mQ<:vI*v8p2$~hGg>>E-XGG?^' );
-    #   define( 'SECURE_AUTH_KEY',  '4&!Fa!1^B[R$i=sC5Vtkp#=xmkQSsDg W3GB&/1z}lj,/iP[q%:JG|*_,+.vwJ*;' );
-    #   define( 'LOGGED_IN_KEY',    ';gd_NORGtCQzx!EBgC9AeUsDt:#>480.e.L)=#v}HuGr^Z%u o4D=Be3BSm6$A/9' );
-    #   define( 'NONCE_KEY',        '+}gdvR-fHW5NH#B&HIQ%rns1>)d&jQ[5Ro2EfgCBZ7^6|A}<Xrf<u:S2*L1=@sOQ' );
-    #   define( 'AUTH_SALT',        '[c*abR6{tpSa/Y54nxx8&;(D~ElJ1L~7XP=0PVSH,SD)9Gt+i)  1X&4<rw-Thd!' );
-    #   define( 'SECURE_AUTH_SALT', 'C>ha@-0k(UPA2P|m$S}+#eO$md*d<K;x^+sS&9?R,6;t&B@Y=z{Y(S8EB8#q@TJ)' );
-    #   define( 'LOGGED_IN_SALT',   'UV$Q$(8aWcl;nXVM^*H)Qb2B%5)TSPiaBX*-C<B]=w>{y_eZ%:u0.yk/G{dEw8<~' );
-    #   define( 'NONCE_SALT',       '(V/<C!Zusm5^zFsj-@V R)A+3.7l%&h~6.!<zM|~N9SiecsaR7&X:dH|h VLhZ2A' );
-    # EOL
+    # Load wp db backup
+    sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${module.rds.endpoint}'/g' wp-blog/sql/wp-db-backup.sql
+    sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${module.application_load_balancer.lb_dns_name}#g" wp-blog/sql/wp-db-backup.sql
+    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" < wp-blog/sql/wp-db-backup.sql
+    echo "${module.application_load_balancer.lb_dns_name}" > /home/ec2-user/alb.txt
   EOT
   associate_public_ip_address = false
 }
@@ -195,6 +200,7 @@ module "wp_instance_b" {
     sudo amazon-linux-extras install -y php8.2
     sudo yum install -y httpd
     sudo yum install -y git
+    # sudo yum install -y php-xml
 
     sudo systemctl start httpd
     sudo systemctl enable httpd
@@ -202,15 +208,28 @@ module "wp_instance_b" {
     wget https://wordpress.org/latest.tar.gz
     tar -xzf latest.tar.gz
     sudo mv wordpress/* /var/www/html/
+    git clone ${var.wp_blog_repo}
+    sudo mv wp-blog/wp-content/* /var/www/html/wp-content
 
     sudo usermod -a -G apache ec2-user
-    sudo chown -R ec2-user:apache /var/www
+    # sudo chown -R ec2-user:apache /var/www
+    sudo chown -R apache:apache /var/www
     sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
     find /var/www -type f -exec sudo chmod 0664 {} \;
 
     DB_USER="${var.db_username}"
     DB_PASS="${var.db_password}"
     DB_HOST="${module.rds.endpoint}"
+
+    # Write SQL commands to a temp file
+    cat <<SQL > /tmp/init_wp.sql
+    # CREATE DATABASE \`${var.db_name}\`;
+    GRANT ALL PRIVILEGES ON \`${var.db_name}\`.* TO '$DB_USER'@'%';
+    FLUSH PRIVILEGES;
+    SQL
+
+    # Run the SQL script
+    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" < /tmp/init_wp.sql
 
     # Initialize Wordpress connection to DB
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
@@ -220,26 +239,20 @@ module "wp_instance_b" {
     sudo sed -i 's/'password_here'/'${var.db_password}'/g' /var/www/html/wp-config.php
     sudo sed -i 's/'localhost'/'${module.rds.endpoint}'/g' /var/www/html/wp-config.php
 
-    # cat <<EOL >> /var/www/html/wp-config.php
-    #   define( 'AUTH_KEY',         '^skfI})#j$n}JaN7o#UH!ob(mLr$WVX6FTYw9J}mQ<:vI*v8p2$~hGg>>E-XGG?^' );
-    #   define( 'SECURE_AUTH_KEY',  '4&!Fa!1^B[R$i=sC5Vtkp#=xmkQSsDg W3GB&/1z}lj,/iP[q%:JG|*_,+.vwJ*;' );
-    #   define( 'LOGGED_IN_KEY',    ';gd_NORGtCQzx!EBgC9AeUsDt:#>480.e.L)=#v}HuGr^Z%u o4D=Be3BSm6$A/9' );
-    #   define( 'NONCE_KEY',        '+}gdvR-fHW5NH#B&HIQ%rns1>)d&jQ[5Ro2EfgCBZ7^6|A}<Xrf<u:S2*L1=@sOQ' );
-    #   define( 'AUTH_SALT',        '[c*abR6{tpSa/Y54nxx8&;(D~ElJ1L~7XP=0PVSH,SD)9Gt+i)  1X&4<rw-Thd!' );
-    #   define( 'SECURE_AUTH_SALT', 'C>ha@-0k(UPA2P|m$S}+#eO$md*d<K;x^+sS&9?R,6;t&B@Y=z{Y(S8EB8#q@TJ)' );
-    #   define( 'LOGGED_IN_SALT',   'UV$Q$(8aWcl;nXVM^*H)Qb2B%5)TSPiaBX*-C<B]=w>{y_eZ%:u0.yk/G{dEw8<~' );
-    #   define( 'NONCE_SALT',       '(V/<C!Zusm5^zFsj-@V R)A+3.7l%&h~6.!<zM|~N9SiecsaR7&X:dH|h VLhZ2A' );
-    # EOL
+    # Load wp db backup
+    sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${module.rds.endpoint}'/g' wp-blog/sql/wp-db-backup.sql
+    sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${module.application_load_balancer.lb_dns_name}#g" wp-blog/sql/wp-db-backup.sql
+    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" < wp-blog/sql/wp-db-backup.sql
+    echo "${module.application_load_balancer.lb_dns_name}" > /home/ec2-user/alb.txt
   EOT
   associate_public_ip_address = false
 }
 
 
-
-module "application_load_balancer" {
-  source        = "./modules/alb"
+module "alb_tg" {
+  source = "./modules/alb-tg"
+  alb_arn = module.application_load_balancer.arn
   instance_id_list = [module.wp_instance_a.id, module.wp_instance_b.id]
-  public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
   vpc_id = module.vpc.vpc_id
 }
 
