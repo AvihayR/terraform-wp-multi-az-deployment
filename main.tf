@@ -125,74 +125,14 @@ module "application_load_balancer" {
   vpc_id = module.vpc.vpc_id
 }
 
-module "wp_instance_a" {
+module "wp_instance" {
+  for_each = {a = module.private_subnet_a.id, b = module.private_subnet_b.id}
   source                      = "./modules/ec2-instance"
   instance_type               = var.instance_type
-  subnet_id                   = module.private_subnet_a.id
+  subnet_id                   = each.value
   sg_list                     = [module.wp_sg.id]
   bastion_key_name            = module.bastion_key_pair.key_pair.key_name
-  ec2_name                    = "wp_instance_a"
-  user_data                   = <<-EOT
-    #!/bin/bash
-    sudo yum update -y
-    sudo amazon-linux-extras install -y mariadb10.5
-    sudo amazon-linux-extras install -y php8.2
-    sudo yum install -y httpd
-    sudo yum install -y git
-    # sudo yum install -y php-xml
-
-    sudo systemctl start httpd
-    sudo systemctl enable httpd
-
-    wget https://wordpress.org/latest.tar.gz
-    tar -xzf latest.tar.gz
-    sudo mv wordpress/* /var/www/html/
-    git clone ${var.wp_blog_repo}
-    sudo mv wp-blog/wp-content/* /var/www/html/wp-content
-
-    sudo usermod -a -G apache ec2-user
-    # sudo chown -R ec2-user:apache /var/www
-    sudo chown -R apache:apache /var/www
-    sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
-    find /var/www -type f -exec sudo chmod 0664 {} \;
-
-    DB_USER="${var.db_username}"
-    DB_PASS="${var.db_password}"
-    DB_HOST="${module.rds.endpoint}"
-
-    # Write SQL commands to a temp file
-    cat <<SQL > /tmp/init_wp.sql
-    # CREATE DATABASE \`${var.db_name}\`;
-    GRANT ALL PRIVILEGES ON \`${var.db_name}\`.* TO '$DB_USER'@'%';
-    FLUSH PRIVILEGES;
-    SQL
-
-    # Run the SQL script
-    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" < /tmp/init_wp.sql
-
-    # Initialize Wordpress connection to DB
-    cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" < wp-blog-demo-app/wpdb.sql
-    sudo sed -i 's/'database_name_here'/'${var.db_name}'/g' /var/www/html/wp-config.php
-    sudo sed -i 's/'username_here'/'${var.db_username}'/g' /var/www/html/wp-config.php
-    sudo sed -i 's/'password_here'/'${var.db_password}'/g' /var/www/html/wp-config.php
-    sudo sed -i 's/'localhost'/'${module.rds.endpoint}'/g' /var/www/html/wp-config.php
-
-    # Load wp db backup
-    sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${module.rds.endpoint}'/g' wp-blog/sql/wp-db-backup.sql
-    sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${module.application_load_balancer.lb_dns_name}#g" wp-blog/sql/wp-db-backup.sql
-    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" < wp-blog/sql/wp-db-backup.sql
-    echo "${module.application_load_balancer.lb_dns_name}" > /home/ec2-user/alb.txt
-  EOT
-  associate_public_ip_address = false
-}
-module "wp_instance_b" {
-  source                      = "./modules/ec2-instance"
-  instance_type               = var.instance_type
-  subnet_id                   = module.private_subnet_b.id
-  sg_list                     = [module.wp_sg.id]
-  bastion_key_name            = module.bastion_key_pair.key_pair.key_name
-  ec2_name                    = "wp_instance_b"
+  ec2_name                    = "wp_instance_${each.key}"
   user_data                   = <<-EOT
     #!/bin/bash
     sudo yum update -y
@@ -252,7 +192,7 @@ module "wp_instance_b" {
 module "alb_tg" {
   source = "./modules/alb-tg"
   alb_arn = module.application_load_balancer.arn
-  instance_id_list = [module.wp_instance_a.id, module.wp_instance_b.id]
+  instance_id_list = [module.wp_instance.a.id, module.wp_instance.b.id]
   vpc_id = module.vpc.vpc_id
 }
 
@@ -278,12 +218,8 @@ output "keypair" {
   value = module.bastion_key_pair
 }
 
-output "wp_instance_a" {
-  value = module.wp_instance_a
-}
-
-output "wp_instance_b" {
-  value = module.wp_instance_b
+output "wp_instances" {
+  value = module.wp_instance
 }
 
 output "bastion_ec2_instance" {
