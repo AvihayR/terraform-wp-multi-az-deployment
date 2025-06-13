@@ -59,3 +59,9 @@ variable "bastion_key_name" {
   type    = string
   default = "bastion_key"
 }
+
+
+variable "wp_blog_repo" {
+  type = string
+  default = "https://github.com/AvihayR/wp-blog.git"
+}
