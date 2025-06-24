@@ -26,3 +26,7 @@ variable "user_data" {
 variable "ec2_name" {
   type = string
 }
+
+variable "instance_profile" {
+  type = string
+}
