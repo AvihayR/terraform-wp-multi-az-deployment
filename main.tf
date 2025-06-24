@@ -117,6 +117,17 @@ module "bastion_instance" {
   ec2_name                    = "bastion-host"
   user_data                   = null
   associate_public_ip_address = true
+  instance_profile = null
+}
+
+module "ssm_parameters" {
+  source = "./modules/ssm_params"
+  db_username = var.db_username
+  db_password = var.db_password
+}
+
+module "ssm_instance_profile" {
+  source = "./modules/ssm_instance_profile"
 }
 
 module "application_load_balancer" {
@@ -133,6 +144,7 @@ module "wp_instance" {
   sg_list                     = [module.wp_sg.id]
   bastion_key_name            = module.bastion_key_pair.key_pair.key_name
   ec2_name                    = "wp_instance_${each.key}"
+  instance_profile = module.ssm_instance_profile.name
   user_data                   = <<-EOT
     #!/bin/bash
     sudo yum update -y
