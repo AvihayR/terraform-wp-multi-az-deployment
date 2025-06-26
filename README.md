@@ -7,6 +7,9 @@ Wordpress is served on the instance using Apache, and its loads are distributed 
 
 DB Credentials are stored within SSM Parameter store and are pulled to and used on the instances using a bash script which runs on each boot.
 
+## Demo
+![Project architecture](assets/tf-arch.png)
+
 
 ## Deployment 
 To deploy this project run
@@ -16,7 +19,3 @@ To deploy this project run
   terraform apply -var-db_username="<insert-requested-username>" -var-db_password="<insert-strong-password>" --auto-approve
 
 ```
-
-## Demo
-![Project architecture](assets/tf-arch.png)
-
