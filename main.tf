@@ -84,7 +84,7 @@ module "rds_sg" {
 
 module "rds" {
   source           = "./modules/rds"
-  rds_subnet_group = [module.private_subnet_a.id, module.private-subnet-b.id]
+  rds_subnet_group = [module.private_subnet_a.id, module.private_subnet_b.id]
   username         = var.db_username
   password         = var.db_password
   db_name          = var.db_name
