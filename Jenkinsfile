@@ -12,6 +12,7 @@ pipeline {
                      sh '''
                         ls -l
                         echo Hello Jenkins
+                        docker ps -a
                      '''
                 } 
             } 
