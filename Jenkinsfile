@@ -9,10 +9,10 @@ pipeline {
                     branch 'cicd' 
                 } 
                 steps { 
-                    script { 
-                        ls 
-                        echo hello world
-                    } 
+                     sh '''
+                        ls -l
+                        echo Hello Jenkins
+                     '''
                 } 
             } 
         }
