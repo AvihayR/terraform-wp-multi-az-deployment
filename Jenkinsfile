@@ -4,16 +4,12 @@ pipeline {
 
     stages {
 
-            stage('Hello Jenkins') { 
+            stage('Build Docker Image') { 
                 when { 
                     branch 'cicd' 
                 } 
                 steps { 
-                     sh '''
-                        ls -l
-                        echo Hello Jenkins
-                        docker ps -a
-                     '''
+                     sh 'docker build -t avihayr/multi-az-wp:$GIT_COMMIT .'
                 } 
             } 
         }
