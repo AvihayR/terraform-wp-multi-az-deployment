@@ -1,0 +1,14 @@
+version: 0.2
+env:
+  variables:
+    IMAGE_REPO_NAME: "terraform-wp-multi-az-deployment"
+    IMAGE_TAG: "latest"
+
+phases:
+  build:
+    commands:
+      - echo "Building the Docker image from Dockerfile..."
+      - docker build -t avihayr/${IMAGE_REPO_NAME}:${GIT_COMMIT} -f Dockerfile .
+      - docker images
+
+
