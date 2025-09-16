@@ -1,5 +1,8 @@
 version: 0.2
 env:
+  secrets-manager:
+    DOCKER_USERNAME: "docker-hub-credentials:username"
+    DOCKER_PASSWORD: "docker-hub-credentials:password"
   variables:
     IMAGE_REPO_NAME: "terraform-wp-multi-az-deployment"
     IMAGE_TAG: "latest"
