@@ -66,6 +66,7 @@ phases:
       
       - echo "List all env vars on container"
       - docker exec local-wp env
-
+      
       - echo "Verify wp-content was transferred"
-      - docker exec local-wp ls /var/www/html/wp-content/uploads/2025/06
+      - docker exec local-wp ls /var/www/html/wp-content/
+      
