@@ -7,7 +7,7 @@ env:
     IMAGE_REPO_NAME: "avihayr/terraform-wp-multi-az-deployment"
     IMAGE_TAG: "latest"
     SECONDARY_REPO_BRANCH: "main"
-    WP_CONTENT_PATH: "wp-blog/wp-content" 
+    WP_CONTENT_PATH: "wp-content" 
     SQL_DUMP_PATH: "wp-blog/sql/wp-db-backup.sql"
     DB_NAME: "wordpress"
     DB_PORT: "3306"
@@ -66,7 +66,7 @@ phases:
       
       - echo "List all env vars on container"
       - docker exec local-wp env
-      
+
       - echo "Verify wp-content was transferred"
       - docker exec local-wp ls /var/www/html/wp-content/
       
