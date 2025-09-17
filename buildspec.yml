@@ -56,4 +56,17 @@ phases:
           aquasec/trivy:latest image --exit-code 1 --severity HIGH,CRITICAL \
           avihayr/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION} || {
             echo "Trivy detected high/critical vulnerabilities"; exit 1; }
+      # -------------------- Experimental steps ---------------------------- #
 
+      - echo "Listing docker images"
+      - docker images
+
+      - echo "Running Docker Container..."
+      - docker run --rm -d /var/run/docker.sock:/var/run/docker.sock \
+        --name local-wp -p 8080:80 avihayr/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}
+      
+      - echo "List all env vars on container"
+      - docker exec local-wp env
+
+      - echo "Verify wp-content was transferred"
+      - docker exec local-wp ls /var/www/html/wp-content/uploads/2025/06
