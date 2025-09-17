@@ -16,4 +16,4 @@ FROM wordpress:php8.4-fpm-alpine
 ARG WP_CONTENT_PATH=wp-content
 RUN apk update && apk upgrade
 
-COPY --from=wp_content_img /tmp/wpassets/${WP_CONTENT_PATH}/* /var/www/html/wp-content/
+COPY --from=wp_content_img /tmp/wpassets/${WP_CONTENT_PATH} /var/www/html/wp-content/
