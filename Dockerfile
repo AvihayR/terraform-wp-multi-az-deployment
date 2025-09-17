@@ -12,7 +12,7 @@ RUN if [ -n "$SECONDARY_REPO_URL" ]; then \
          echo "SECONDARY_REPO_URL not provided; building without external wp-content"; \
        fi
 
-FROM wordpress:alpine
+FROM wordpress:php8.4-fpm-alpine
 RUN apk update && apk upgrade
 
 COPY --from=wp_content_img /tmp/wpassets/${WP_CONTENT_PATH}/ /var/www/html/wp-content/
