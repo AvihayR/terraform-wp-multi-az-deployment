@@ -70,3 +70,5 @@ phases:
       - echo "Verify wp-content was transferred"
       - docker exec local-wp ls /var/www/html/wp-content/uploads/2025/06
       
+      - echo "Verify Wordpress is running"
+      - curl localhost:8080
