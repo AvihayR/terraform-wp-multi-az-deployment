@@ -8,6 +8,7 @@ ARG SECONDARY_REPO_BRANCH
 ARG WP_CONTENT_PATH
 RUN if [ -n "$SECONDARY_REPO_URL" ]; then \
          git clone --depth 1 --branch "$SECONDARY_REPO_BRANCH" "$SECONDARY_REPO_URL" /tmp/wpassets; \
+         ls /tmp/wpassets; \
        else \
          echo "SECONDARY_REPO_URL not provided; building without external wp-content"; \
        fi
