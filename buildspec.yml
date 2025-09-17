@@ -4,7 +4,7 @@ env:
     DOCKER_USERNAME: "docker-hub-credentials:username"
     DOCKER_PASSWORD: "docker-hub-credentials:password"
   variables:
-    IMAGE_REPO_NAME: "terraform-wp-multi-az-deployment"
+    IMAGE_REPO_NAME: "avihayr/terraform-wp-multi-az-deployment"
     IMAGE_TAG: "latest"
     SECONDARY_REPO_BRANCH: "main"
     WP_CONTENT_PATH: "wp-blog/wp-content" 
@@ -45,7 +45,7 @@ phases:
           --build-arg SECONDARY_REPO_URL="${SECONDARY_REPO_URL}" \
           --build-arg SECONDARY_REPO_BRANCH="${SECONDARY_REPO_BRANCH}" \
           --build-arg WP_CONTENT_PATH="${WP_CONTENT_PATH}" \
-          -t avihayr/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION} \
+          -t ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION} \
           -f Dockerfile .
   post_build:
     commands:
@@ -54,7 +54,7 @@ phases:
       - |
         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
           aquasec/trivy:latest image --exit-code 1 --severity HIGH,CRITICAL \
-          avihayr/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION} || {
+          ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION} || {
             echo "Trivy detected high/critical vulnerabilities"; exit 1; }
       # -------------------- Experimental steps ---------------------------- #
 
@@ -62,8 +62,7 @@ phases:
       - docker images
 
       - echo "Running Docker Container..."
-      - docker run --rm -d\
-        --name local-wp -p 8080:80 avihayr/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}
+      - docker run --rm -d --name local-wp -p 8080:80 ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}
       
       - echo "List all env vars on container"
       - docker exec local-wp env
