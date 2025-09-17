@@ -63,12 +63,10 @@ phases:
 
       - echo "Running Docker Container..."
       - docker run --rm -d --name local-wp -p 8080:80 ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}
-      
-      - echo "List all env vars on container"
-      - docker exec local-wp env
 
       - echo "Verify wp-content was transferred"
       - docker exec local-wp ls /var/www/html/wp-content/uploads/2025/06
       
       - echo "Verify Wordpress is running"
+      - sleep 30
       - curl localhost:8080
