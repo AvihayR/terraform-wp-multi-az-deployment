@@ -14,6 +14,7 @@ RUN if [ -n "$SECONDARY_REPO_URL" ]; then \
 
 FROM wordpress:php8.4-apache
 ARG WP_CONTENT_PATH=wp-content
-RUN apk update && apk upgrade
+RUN apt-get update && apt-get upgrade -y && apt-get clean
+
 
 COPY --from=wp_content_img /tmp/wpassets/${WP_CONTENT_PATH} /var/www/html/wp-content/
