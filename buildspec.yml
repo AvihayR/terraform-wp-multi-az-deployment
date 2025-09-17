@@ -62,7 +62,7 @@ phases:
       - docker images
 
       - echo "Running Docker Container..."
-      - docker run --rm -d /var/run/docker.sock:/var/run/docker.sock \
+      - docker run --rm -d\
         --name local-wp -p 8080:80 avihayr/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}
       
       - echo "List all env vars on container"
