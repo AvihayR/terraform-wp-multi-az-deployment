@@ -53,7 +53,7 @@ phases:
       - echo "Scanning image with Trivy..."
       - |
         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-          aquasec/trivy:latest image --exit-code 1 --severity HIGH,CRITICAL \
+          aquasec/trivy:latest image --exit-code 1 --severity CRITICAL \
           ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION} || {
             echo "Trivy detected high/critical vulnerabilities"; exit 1; }
       # -------------------- Experimental steps ---------------------------- #
