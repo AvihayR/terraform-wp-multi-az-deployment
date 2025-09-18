@@ -69,4 +69,4 @@ phases:
       
       - echo "Verify Wordpress is running"
       - sleep 30
-      - curl localhost:8080
+      - curl -L http://localhost:8080
