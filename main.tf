@@ -136,6 +136,12 @@ module "application_load_balancer" {
   vpc_id = module.vpc.vpc_id
 }
 
+module "ecr" {
+  source = "./modules/ecr"
+  repo_name = "wp-ecr-dkr"
+  region = var.region
+}
+
 module "wp_instance" {
   for_each = {a = module.private_subnet_a.id, b = module.private_subnet_b.id}
   source                      = "./modules/ec2-instance"
