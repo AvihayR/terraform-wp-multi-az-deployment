@@ -58,9 +58,6 @@ phases:
             echo "Trivy detected high/critical vulnerabilities"; exit 1; }
       # -------------------- Experimental steps ---------------------------- #
 
-      - echo "Listing docker images"
-      - docker images
-
       - echo "Running Docker Container..."
       - docker run --rm -d --name local-wp -p 8080:80 ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}
 
@@ -70,3 +67,11 @@ phases:
       - echo "Verify Wordpress is running"
       - sleep 30
       - curl -L http://localhost:8080
+      # --------------------------------------------------------------------- #
+
+      # Infra Provisioning
+      - echo "Provisioning infrastructure in AWS..."
+      - terraform init
+      - terraform plan -out=tfplan
+      - terraform apply -auto-approve tfplan
+      
