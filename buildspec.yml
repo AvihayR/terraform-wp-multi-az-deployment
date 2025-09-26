@@ -79,10 +79,11 @@ phases:
 
       # Infra Provisioning
       - echo "Provisioning infrastructure in AWS..."
-      - terraform init \
-        -backend-config="bucket=${TF_BACKEND_BUCKET}" \
-        -backend-config="region=${TF_BACKEND_REGION}" \
-        -backend-config="key=${TF_BACKEND_KEY}"
+      - |
+        terraform init \
+          -backend-config="bucket=${TF_BACKEND_BUCKET}" \
+          -backend-config="region=${TF_BACKEND_REGION}" \
+          -backend-config="key=${TF_BACKEND_KEY}"
 
       - terraform plan -out=tfplan
       - terraform apply -auto-approve tfplan
