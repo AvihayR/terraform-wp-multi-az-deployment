@@ -85,6 +85,6 @@ phases:
           -backend-config="region=${TF_BACKEND_REGION}" \
           -backend-config="key=${TF_BACKEND_KEY}"
 
-      - terraform plan -var="db_username=${DB_USER}" -var="db_username=${DB_PASSWORD}" -out=tfplan
+      - terraform plan -var="db_username=${DB_USER}" -var="db_password=${DB_PASSWORD}" -out=tfplan
       - terraform apply -auto-approve tfplan
       
