@@ -12,13 +12,8 @@ env:
     DB_NAME: "wordpress"
     DB_PORT: "3306"
     APP_PORT: "8080"
-  
-  # *IMPORTANT* Supply sensitive values via your build environment and secrets manager
-  #   SECONDARY_REPO_URL: "" 
-  #   DB_USER: ""
-  #   DB_PASSWORD: ""
-  #   DB_ROOT_PASSWORD: ""
-
+  # *IMPORTANT* Supply sensitive values via your build environment and secrets manager:
+  #   [SECONDARY_REPO_URL, DB_USER, DB_PASSWORD, DB_ROOT_PASSWORD]
 
 phases:
   install:
@@ -26,6 +21,10 @@ phases:
       - echo "Install phase - Ensuring basics are available"
       - docker --version
       - git --version
+      - sudo yum install -y yum-utils shadow-utils
+      - sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+      - sudo yum install terraform
+      - terraform version
   pre_build:
     commands:
       - echo "Pre-build phase - cloning secondary repo for SQL dump"
