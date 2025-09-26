@@ -39,7 +39,14 @@ phases:
   build:
     commands:
       - echo "Authenticating on DockerHub"
-      - echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - |
+        if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_PASSWORD" ]; then
+          echo "Docker Hub credentials found, logging in..."
+          echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+        else
+          echo "No Docker Hub credentials provided, skipping login..."
+        fi
+        
       - echo "Building the Docker image from Dockerfile..."
       - |
         docker build \
@@ -72,7 +79,11 @@ phases:
 
       # Infra Provisioning
       - echo "Provisioning infrastructure in AWS..."
-      - terraform init
+      - terraform init \
+        -backend-config="bucket=${TF_BACKEND_BUCKET}" \
+        -backend-config="region=${TF_BACKEND_REGION}" \
+        -backend-config="key=${TF_BACKEND_KEY}"
+
       - terraform plan -out=tfplan
       - terraform apply -auto-approve tfplan
       
