@@ -94,8 +94,8 @@ phases:
       - echo "ECR Authentication in progress.."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URL
       - echo "Tagging Docker Image with the ECR URL"
-      - docker tag "${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" "${ECR_URL}/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+      - docker tag "${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" "${ECR_URL}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
       - echo "ECR URL ${ECR_URL}"
       - echo "Pushing Docker Image to ECR"
-      - docker push "${ECR_URL}/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+      - docker push "${ECR_URL}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
       
