@@ -287,5 +287,5 @@ output "alb_dns_name" {
 }
 
 output "ecr_url" {
-  value = module.ecr
+  value = module.ecr.url
 }
