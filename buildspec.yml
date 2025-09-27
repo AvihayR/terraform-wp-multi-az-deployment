@@ -4,7 +4,7 @@ env:
     DOCKER_USERNAME: "docker-hub-credentials:username"
     DOCKER_PASSWORD: "docker-hub-credentials:password"
   variables:
-    IMAGE_REPO_NAME: "avihayr/terraform-wp-multi-az-deployment"
+    IMAGE_REPO_NAME: "terraform-wp-multi-az"
     IMAGE_TAG: "latest"
     SECONDARY_REPO_BRANCH: "main"
     WP_CONTENT_PATH: "wp-content" 
@@ -92,5 +92,5 @@ phases:
       # Push Docker Image to ECR 
       - echo "Pushing Docker Image to ECR"
       - ECR_URL=$(terraform output -raw ecr_url)
-      - docker push "${ECR_URL}:${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+      - docker push "${ECR_URL}/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
       
