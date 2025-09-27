@@ -93,7 +93,7 @@ phases:
       - ECR_URL=$(terraform output -raw ecr_url)
       - echo "Tagging Docker Image with the ECR URL"
       - docker tag "${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" "${ECR_URL}/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
-      - echo "ECR URL: ${ECR_URL}"
+      - echo "ECR URL ${ECR_URL}"
       - echo "Pushing Docker Image to ECR"
       - docker push "${ECR_URL}/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
       
