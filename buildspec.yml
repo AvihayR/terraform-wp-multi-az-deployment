@@ -87,4 +87,10 @@ phases:
 
       - terraform plan -var="db_username=${DB_USER}" -var="db_password=${DB_PASSWORD}" -out=tfplan
       - terraform apply -auto-approve tfplan
+
+
+      # Push Docker Image to ECR 
+      - echo "Pushing Docker Image to ECR"
+      - ECR_URL=$(terraform output -raw ecr_url)
+      - docker push "${ECR_URL}:${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
       

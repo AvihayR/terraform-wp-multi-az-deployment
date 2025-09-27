@@ -117,11 +117,11 @@ module "bastion_instance" {
   ec2_name                    = "bastion-host"
   user_data                   = null
   associate_public_ip_address = true
-  instance_profile = null
+  instance_profile            = null
 }
 
 module "ssm_parameters" {
-  source = "./modules/ssm_params"
+  source      = "./modules/ssm_params"
   db_username = var.db_username
   db_password = var.db_password
 }
@@ -131,26 +131,26 @@ module "ssm_instance_profile" {
 }
 
 module "application_load_balancer" {
-  source        = "./modules/alb"
+  source            = "./modules/alb"
   public_subnet_ids = [module.public-subnet-a.id, module.public-subnet-b.id]
-  vpc_id = module.vpc.vpc_id
+  vpc_id            = module.vpc.vpc_id
 }
 
 module "ecr" {
-  source = "./modules/ecr"
+  source    = "./modules/ecr"
   repo_name = "wp-ecr-dkr"
-  region = var.region
+  region    = var.region
 }
 
 module "wp_instance" {
-  for_each = {a = module.private_subnet_a.id, b = module.private_subnet_b.id}
+  for_each                    = { a = module.private_subnet_a.id, b = module.private_subnet_b.id }
   source                      = "./modules/ec2-instance"
   instance_type               = var.instance_type
   subnet_id                   = each.value
   sg_list                     = [module.wp_sg.id]
   bastion_key_name            = module.bastion_key_pair.key_pair.key_name
   ec2_name                    = "wp_instance_${each.key}"
-  instance_profile = module.ssm_instance_profile.name
+  instance_profile            = module.ssm_instance_profile.name
   user_data                   = <<-EOT
     #!/bin/bash
     sudo yum update -y
@@ -246,10 +246,10 @@ module "wp_instance" {
 
 
 module "alb_tg" {
-  source = "./modules/alb-tg"
-  alb_arn = module.application_load_balancer.arn
+  source           = "./modules/alb-tg"
+  alb_arn          = module.application_load_balancer.arn
   instance_id_list = [module.wp_instance.a.id, module.wp_instance.b.id]
-  vpc_id = module.vpc.vpc_id
+  vpc_id           = module.vpc.vpc_id
 }
 
 
@@ -284,4 +284,8 @@ output "bastion_ec2_instance" {
 
 output "alb_dns_name" {
   value = module.application_load_balancer
+}
+
+output "ecr_url" {
+  value = module.ecr
 }

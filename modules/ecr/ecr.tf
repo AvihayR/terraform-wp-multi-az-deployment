@@ -1,9 +1,12 @@
 resource "aws_ecr_repository" "ecr_repository" {
-    name = var.repo_name
-    image_tag_mutability = "IMMUTABLE"
+  name                 = var.repo_name
+  image_tag_mutability = "IMMUTABLE"
 
-    tags = {
-        Name = var.repo_name
-    }
+  tags = {
+    Name = var.repo_name
+  }
 }
 
+output "url" {
+  value = aws_ecr_repository.ecr_repository.repository_url
+}
