@@ -7,7 +7,7 @@ data "aws_ami" "amazon_linux" {
   }
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm*"]
+    values = ["amzn2-ami-ecs-hvm-*"]
   }
 }
 
@@ -19,7 +19,7 @@ resource "aws_instance" "ec2_instance" {
   key_name                    = var.bastion_key_name
   user_data                   = var.user_data
   associate_public_ip_address = var.associate_public_ip_address
-  iam_instance_profile = var.instance_profile
+  iam_instance_profile        = var.instance_profile
 
   tags = {
     Name = var.ec2_name

@@ -18,3 +18,12 @@ RUN apt-get update && apt-get upgrade -y && apt-get clean
 
 
 COPY --from=wp_content_img /tmp/wpassets/${WP_CONTENT_PATH} /var/www/html/wp-content/
+
+# Initialize Wordpress connection to DB
+RUN sudo sed -i "s/'DB_NAME', '.*'/'DB_NAME', '${var.db_name}'/" /var/www/html/wp-config.php && \
+    sudo sed -i "s/'DB_USER', '.*'/'DB_USER', '${var.db_username}'/" /var/www/html/wp-config.php && \
+    sudo sed -i "s/'DB_PASSWORD', '.*'/'DB_PASSWORD', '${var.db_password}'/" /var/www/html/wp-config.php && \
+    sudo sed -i "s/'DB_HOST', '.*'/'DB_HOST', '${module.rds.endpoint}'/" /var/www/html/wp-config.php && \
+    sudo sed -i 's/'localhost'/'${module.rds.endpoint}'/g' /var/www/html/wp-config.php && \
+    sudo sed -i "s/'DB_PASSWORD', '.*'/'DB_PASSWORD', '$DB_PASSWORD'/" /var/www/html/wp-config.php && \
+    sudo sed -i "s/'DB_USER', '.*'/'DB_USER', '$DB_USERNAME'/" /var/www/html/wp-config.php

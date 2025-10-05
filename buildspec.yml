@@ -98,4 +98,5 @@ phases:
       - echo "ECR URL ${ECR_URL}"
       - echo "Pushing Docker Image to ECR"
       - docker push "${ECR_URL}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+      - docker push "${ECR_URL}:latest"
       

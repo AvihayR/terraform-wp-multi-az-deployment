@@ -38,6 +38,11 @@ resource "aws_iam_role_policy_attachment" "wp_ec2_ssm_read_attachment" {
   policy_arn = aws_iam_policy.ssm_read.arn
 }
 
+resource "aws_iam_role_policy_attachment" "wp_ec2_ecs_access" {
+  role       = aws_iam_role.wp_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
 resource "aws_iam_instance_profile" "wp_ssm_profile" {
   name = "wp_ssm_profile"
   role = aws_iam_role.wp_ec2_role.name
