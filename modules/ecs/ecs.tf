@@ -6,7 +6,7 @@ resource "aws_ecs_task_definition" "wp-task" {
   family = "wp-tasks"
   container_definitions = jsonencode([
     {
-      "name"      = "Wordpress-Container",
+      "name"      = "wordpress",
       "image"     = "${var.repo_url}:latest",
       "cpu"       = 512,
       "memory"    = 512,
@@ -57,10 +57,6 @@ resource "aws_ecs_service" "wp-service" {
   cluster         = aws_ecs_cluster.wp-cluster.id
   task_definition = aws_ecs_task_definition.wp-task.arn
   desired_count   = 2
-
-  deployment_controller {
-    type = "CODE_DEPLOY"
-  }
 }
 
 resource "aws_cloudwatch_log_group" "ecs_logs" {

@@ -142,14 +142,6 @@ module "ecr" {
   region    = var.region
 }
 
-module "ecs_cluster" {
-  source      = "./modules/ecs"
-  db_name     = var.db_name
-  db_user     = var.db_username
-  db_password = var.db_password
-  db_url      = module.rds.endpoint
-  repo_url    = module.ecr.url
-}
 
 module "wp_instance" {
   for_each                    = { a = module.private_subnet_a.id, b = module.private_subnet_b.id }
@@ -176,6 +168,14 @@ module "alb_tg" {
   vpc_id           = module.vpc.vpc_id
 }
 
+module "ecs_cluster" {
+  source      = "./modules/ecs"
+  db_name     = var.db_name
+  db_user     = var.db_username
+  db_password = var.db_password
+  db_url      = module.rds.endpoint
+  repo_url    = module.ecr.url
+}
 
 
 # Outputs

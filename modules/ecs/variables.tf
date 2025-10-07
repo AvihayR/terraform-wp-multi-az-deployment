@@ -18,3 +18,4 @@ variable "db_name" {
   default = "wordpress"
   type    = string
 }
+
