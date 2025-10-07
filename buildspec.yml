@@ -91,6 +91,8 @@ phases:
 
       # Push Docker Image to ECR 
       - ECR_URL=$(terraform output -raw ecr_url)
+      - RDS_URL=$(terraform output -raw rds_url)
+      - ALB_URL=$(terraform output -raw alb_dns_name)
       - TASK_DEF_ARN=$(terraform output -raw task_definition_arn)
       - echo "ECR Authentication in progress.."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URL
@@ -101,8 +103,19 @@ phases:
       - docker push "${ECR_URL}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
       - docker tag "${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" "${ECR_URL}:latest"
       - docker push "${ECR_URL}:latest"
-      - echo "Updating Task Definition ARN in appspec.yml file"
-      - sed -i "s|<TASK_DEFINITION_ARN>|${TASK_DEF_ARN}|g" appspec.yml
+      # Init RDS DB
+      - echo "Init RDS DB with SQL Dump"
+      - |
+        cat > /tmp/init_wp.sql <<EOF \
+        GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
+        FLUSH PRIVILEGES;
+        EOF
+      - mysql -u"${DB_USER}" -p"${DB_PASSWORD}" -h "${RDS_URL}" < /tmp/init_wp.sql
+      - echo "Load WP DB backup"
+      - | 
+        sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "${SQL_DUMP_LOCAL}"
+        sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${ALB_URL}#g" "${SQL_DUMP_LOCAL}"
+        mysql -u"${DB_USER}" -p"${DB_PASSWORD}" -h "${RDS_URL}" < "${SQL_DUMP_LOCAL}"
 artifacts:
   files:
     - '**/*' 

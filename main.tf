@@ -194,6 +194,10 @@ output "rds_details" {
   value = module.rds
 }
 
+output "rds_url" {
+  value = module.rds.endpoint
+}
+
 output "keypair" {
   value = module.bastion_key_pair
 }
@@ -207,7 +211,7 @@ output "bastion_ec2_instance" {
 }
 
 output "alb_dns_name" {
-  value = module.application_load_balancer
+  value = module.application_load_balancer.lb_dns_name
 }
 
 output "ecr_url" {
