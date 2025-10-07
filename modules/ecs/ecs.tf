@@ -44,6 +44,13 @@ resource "aws_ecs_task_definition" "wp-task" {
   ])
 }
 
+resource "aws_ecs_service" "wp-service" {
+  name            = "Wordpress-service"
+  cluster         = aws_ecs_cluster.wp-cluster.id
+  task_definition = aws_ecs_task_definition.wp-task.arn
+  desired_count   = 2
+}
+
 output "name" {
   value = aws_ecs_cluster.wp-cluster.name
 }
