@@ -103,3 +103,6 @@ phases:
       - docker push "${ECR_URL}:latest"
       - echo "Updating Task Definition ARN in appspec.yml file"
       - sed -i "s|<TASK_DEFINITION_ARN>|${TASK_DEF_ARN}|g" appspec.yml
+artifacts:
+  files:
+    - '**/*' 
