@@ -105,11 +105,6 @@ phases:
       - docker push "${ECR_URL}:latest"
       # Init RDS DB
       - echo "Init RDS DB with SQL Dump"
-      - |
-        cat > /tmp/init_wp.sql <<EOF \
-        GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
-        FLUSH PRIVILEGES;
-        EOF
       - mysql -u"${DB_USER}" -p"${DB_PASSWORD}" -h "${RDS_URL}" < /tmp/init_wp.sql
       - echo "Load WP DB backup"
       - | 
