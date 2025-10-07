@@ -49,7 +49,7 @@ phases:
         
       - echo "Building the Docker image from Dockerfile..."
       - |
-        docker buildx build --platform linux/arm64 \
+        docker build \
           --build-arg SECONDARY_REPO_URL="${SECONDARY_REPO_URL}" \
           --build-arg SECONDARY_REPO_BRANCH="${SECONDARY_REPO_BRANCH}" \
           --build-arg WP_CONTENT_PATH="${WP_CONTENT_PATH}" \

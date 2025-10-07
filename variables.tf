@@ -46,7 +46,7 @@ variable "db_name" {
 
 variable "instance_type" {
   type    = string
-  default = "t4g.micro"
+  default = "t3.micro"
 }
 
 variable "bastion_sg_allowed_cidr" {
@@ -62,6 +62,6 @@ variable "bastion_key_name" {
 
 
 variable "wp_blog_repo" {
-  type = string
+  type    = string
   default = "https://github.com/AvihayR/wp-blog.git"
 }
