@@ -105,8 +105,6 @@ phases:
       - docker push "${ECR_URL}:latest"
       # Init RDS DB
       - echo "Init RDS DB with SQL Dump"
-      - mysql -u"${DB_USER}" -p"${DB_PASSWORD}" -h "${RDS_URL}" < /tmp/init_wp.sql
-      - echo "Load WP DB backup"
       - | 
         sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "${SQL_DUMP_LOCAL}"
         sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${ALB_URL}#g" "${SQL_DUMP_LOCAL}"
