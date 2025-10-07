@@ -65,7 +65,7 @@ resource "aws_ecs_service" "wp-service" {
 
 resource "aws_cloudwatch_log_group" "ecs_logs" {
   name              = "wp-app-logs"
-  retention_in_days = 2
+  retention_in_days = 1
 }
 
 output "name" {
