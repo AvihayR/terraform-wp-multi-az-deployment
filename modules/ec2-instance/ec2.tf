@@ -3,7 +3,7 @@ data "aws_ami" "amazon_linux" {
   owners      = ["amazon"]
   filter {
     name   = "architecture"
-    values = ["arm64"]
+    values = ["x86_64"]
   }
   filter {
     name   = "name"
