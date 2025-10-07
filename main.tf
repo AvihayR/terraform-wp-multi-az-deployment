@@ -217,3 +217,7 @@ output "ecr_url" {
 output "ecs_cluster_name" {
   value = module.ecs_cluster.name
 }
+
+output "task_definition_arn" {
+  value = module.ecs_cluster.td_arn
+}

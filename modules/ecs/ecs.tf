@@ -47,3 +47,7 @@ resource "aws_ecs_task_definition" "wp-task" {
 output "name" {
   value = aws_ecs_cluster.wp-cluster.name
 }
+
+output "td_arn" {
+  value = aws_ecs_task_definition.wp-task.arn
+}
