@@ -40,9 +40,8 @@ phases:
       - echo "Find wpdb sql dump file"
       - ls -la 
       - ls wp-blog-content
-      - find wp-db-backup.sql
-      # 
       - cat wp-blog-content/${SQL_DUMP_PATH}
+      # 
       - echo "Authenticating on DockerHub"
       - |
         if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_PASSWORD" ]; then
@@ -113,7 +112,7 @@ phases:
       - echo "Find wpdb sql dump file"
       - ls -la 
       - ls wp-blog-content
-      - find wp-db-backup.sql
+      - cat wp-blog-content/${SQL_DUMP_PATH}
       # 
       - echo "Init RDS DB with SQL Dump"
       - | 
