@@ -36,6 +36,9 @@ phases:
         fi
   build:
     commands:
+      - echo "Cat SQL File"
+      - cat wp-blog-content/sql/wp-db-backup.sql
+      - cat "wp-blog-content/${SQL_DUMP_PATH}"
       - echo "Authenticating on DockerHub"
       - |
         if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_PASSWORD" ]; then
@@ -105,9 +108,10 @@ phases:
       # Init RDS DB
       - echo "Check wp-db-backup file"
       - cat wp-blog-content/sql/wp-db-backup.sql
+      - cat "wp-blog-content/${SQL_DUMP_PATH}"
       - echo "Init RDS DB with SQL Dump"
       - | 
-        sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "wp-blog-content/${SQL_DUMP_PATH}" 
+        sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "wp-blog-content/${SQL_DUMP_PATH}"
         sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${ALB_URL}#g" "wp-blog-content/${SQL_DUMP_PATH}"
         mysql -u"${DB_USER}" -p"${DB_PASSWORD}" -h "${RDS_URL}" < "wp-blog-content/${SQL_DUMP_PATH}"
 artifacts:
