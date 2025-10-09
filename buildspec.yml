@@ -36,11 +36,11 @@ phases:
         fi
   build:
     commands:
-      # 
+      # Debug
       - echo "Find wpdb sql dump file"
       - ls -la 
-      - ls wp-blog-content
-      - cat wp-blog-content/${SQL_DUMP_PATH}
+      - ls wp-blog-content/sql
+      - find / -name "*.txt" 2>/dev/null
       # 
       - echo "Authenticating on DockerHub"
       - |
@@ -108,11 +108,11 @@ phases:
       - docker tag "${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" "${ECR_URL}:latest"
       - docker push "${ECR_URL}:latest"
       # Init RDS DB
-      # 
+      # Debug
       - echo "Find wpdb sql dump file"
       - ls -la 
-      - ls wp-blog-content
-      - cat wp-blog-content/${SQL_DUMP_PATH}
+      - ls wp-blog-content/sql
+      - find / -name "*.txt" 2>/dev/null
       # 
       - echo "Init RDS DB with SQL Dump"
       - | 
