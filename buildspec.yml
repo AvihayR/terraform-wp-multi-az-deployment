@@ -23,7 +23,7 @@ phases:
       - git --version
       - sudo yum install -y yum-utils shadow-utils
       - sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-      - sudo yum install -y terraform
+      - sudo yum install -y terraform mariadb
       - terraform version
   pre_build:
     commands:
@@ -36,9 +36,6 @@ phases:
         fi
   build:
     commands:
-      - echo "Cat SQL File"
-      - cat wp-blog-content/sql/wp-db-backup.sql
-      - cat "wp-blog-content/${SQL_DUMP_PATH}"
       - echo "Authenticating on DockerHub"
       - |
         if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_PASSWORD" ]; then
@@ -106,9 +103,6 @@ phases:
       - docker push "${ECR_URL}:latest"
       
       # Init RDS DB
-      - echo "Check wp-db-backup file"
-      - cat wp-blog-content/sql/wp-db-backup.sql
-      - cat "wp-blog-content/${SQL_DUMP_PATH}"
       - echo "Init RDS DB with SQL Dump"
       - | 
         sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "wp-blog-content/${SQL_DUMP_PATH}"
