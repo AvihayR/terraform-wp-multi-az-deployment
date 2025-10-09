@@ -36,6 +36,13 @@ phases:
         fi
   build:
     commands:
+      # 
+      - echo "Find wpdb sql dump file"
+      - ls -la 
+      - ls wp-blog-content
+      - find wp-db-backup.sql
+      # 
+      - cat wp-blog-content/${SQL_DUMP_PATH}
       - echo "Authenticating on DockerHub"
       - |
         if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_PASSWORD" ]; then
@@ -62,8 +69,8 @@ phases:
           aquasec/trivy:latest image --exit-code 1 --severity CRITICAL \
           ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION} || {
             echo "Trivy detected high/critical vulnerabilities"; exit 1; }
-      # -------------------- Experimental steps ---------------------------- #
-
+      
+      #  Test WordPress Locally
       - echo "Running Docker Container..."
       - docker run --rm -d --name local-wp -p 8080:80 ${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}
 
@@ -71,9 +78,9 @@ phases:
       - docker exec local-wp ls /var/www/html/wp-content/uploads/2025/06
       
       - echo "Verify Wordpress is running"
-      - sleep 30
+      - sleep 10
       - curl -L http://localhost:8080
-      # --------------------------------------------------------------------- #
+    
 
       # Infra Provisioning
       - echo "Provisioning infrastructure in AWS..."
@@ -102,6 +109,12 @@ phases:
       - docker tag "${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" "${ECR_URL}:latest"
       - docker push "${ECR_URL}:latest"
       # Init RDS DB
+      # 
+      - echo "Find wpdb sql dump file"
+      - ls -la 
+      - ls wp-blog-content
+      - find wp-db-backup.sql
+      # 
       - echo "Init RDS DB with SQL Dump"
       - | 
         sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "wp-blog-content/${SQL_DUMP_PATH}" 
