@@ -31,8 +31,6 @@ phases:
       - |
         if [ -n "${SECONDARY_REPO_URL}" ]; then
           git clone --depth 1 --branch "${SECONDARY_REPO_BRANCH}" "${SECONDARY_REPO_URL}" wp-blog-content
-          SQL_DUMP_LOCAL="$(pwd)/wp-blog-content/${SQL_DUMP_PATH}"
-          echo "SQL_DUMP_LOCAL=${SQL_DUMP_LOCAL}" | tee -a $CODEBUILD_SRC_DIR/.env
         else
           echo "SECONDARY_REPO_URL not set. Skipping SQL clone."
         fi
@@ -106,9 +104,9 @@ phases:
       # Init RDS DB
       - echo "Init RDS DB with SQL Dump"
       - | 
-        sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "${SQL_DUMP_LOCAL}"
-        sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${ALB_URL}#g" "${SQL_DUMP_LOCAL}"
-        mysql -u"${DB_USER}" -p"${DB_PASSWORD}" -h "${RDS_URL}" < "${SQL_DUMP_LOCAL}"
+        sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "wp-blog-content/${SQL_DUMP_PATH}" 
+        sudo sed -i "s#YOUR_ALB_DNS_NAME#http://${ALB_URL}#g" "wp-blog-content/${SQL_DUMP_PATH}"
+        mysql -u"${DB_USER}" -p"${DB_PASSWORD}" -h "${RDS_URL}" < "wp-blog-content/${SQL_DUMP_PATH}"
 artifacts:
   files:
     - '**/*' 
