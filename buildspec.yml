@@ -8,7 +8,7 @@ env:
     IMAGE_TAG: "latest"
     SECONDARY_REPO_BRANCH: "main"
     WP_CONTENT_PATH: "wp-content" 
-    SQL_DUMP_PATH: "wp-blog/sql/wp-db-backup.sql"
+    SQL_DUMP_PATH: "sql/wp-db-backup.sql"
     DB_NAME: "wordpress"
     DB_PORT: "3306"
     APP_PORT: "8080"
@@ -36,12 +36,6 @@ phases:
         fi
   build:
     commands:
-      # Debug
-      - echo "Find wpdb sql dump file"
-      - ls -la 
-      - ls wp-blog-content/sql
-      - find / -name "*.txt" 2>/dev/null
-      # 
       - echo "Authenticating on DockerHub"
       - |
         if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_PASSWORD" ]; then
@@ -107,13 +101,10 @@ phases:
       - docker push "${ECR_URL}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
       - docker tag "${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" "${ECR_URL}:latest"
       - docker push "${ECR_URL}:latest"
+      
       # Init RDS DB
-      # Debug
-      - echo "Find wpdb sql dump file"
-      - ls -la 
-      - ls wp-blog-content/sql
-      - find / -name "*.txt" 2>/dev/null
-      # 
+      - echo "Check wp-db-backup file"
+      - cat wp-blog-content/sql/wp-db-backup.sql
       - echo "Init RDS DB with SQL Dump"
       - | 
         sudo sed -i 's/'YOUR_RDS_ENDPOINT'/'${RDS_URL}'/g' "wp-blog-content/${SQL_DUMP_PATH}" 
